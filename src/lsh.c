@@ -11,6 +11,62 @@
 #include <stdio.h>
 #include <string.h>
 //
+// Function Delcarations for builtin shell commands:
+//
+int LshCd(char **args);
+int LshHelp(char **args);
+int LshExit(char **args);
+//
+// List of builtin commands, followed by their corresponding functions.
+//
+char *builtin_str[] = {"cd", "help", "exit"};
+int (*builtin_func[]) (char **) = {&LshCd, &LshHelp, &LshExit};
+int LshNumBuiltins() {
+  return sizeof(builtin_str) / sizeof(char *);
+}
+//
+//Builtin function implementations.
+//
+//
+// Description: Builtin command: change directory.
+// Parameter: args List of args. args[0] is "cd". args [1] is the directory.
+// Return: Always returns 1, to continue executing
+//
+int LshCd(char **args) {
+  if (args[1] == NULL) {
+    fprintf(stderr, "lsh: expected argument to \"cd\"\n");
+  } else {
+    if (chdir(args[1]) != 0) {
+      perror("lsh");
+    }
+  }
+  return 1;
+}
+//
+// Description: Builtin command: print help
+// Parameter: args List of args. Not examined.
+// Return: Always returns to 1, to continue executing.
+//
+int LshHelp(char **args) {
+  int i;
+  printf("Ryan Fleming's LSH\n");
+  printf("Type program names and arguments, and hit enter.\n");
+  printf("The following are built in:\n");
+  for (i = 0; i < LshNumBuiltins(); i++) {
+    printf("  %s\n", builtin_str[i]);
+  }
+  printf("use the man command for information on other programs.\n");
+  return 1;
+}
+//
+// Description: Builtin command: exit.
+// Parameter: args List of args. Not examined.
+// Return: Always returns 0, to terminate execution
+//
+int LshExit(char **args) {
+  return 0;
+}
+//
 // Description: Launch a program and wait for it to terminate.
 // Paramter: args Null terminated list of arguments (including program).
 // Return: Always returns to 1, to continue execution.
