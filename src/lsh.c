@@ -55,7 +55,7 @@ int LshHelp(char **args) {
   for (i = 0; i < LshNumBuiltins(); i++) {
     printf("  %s\n", builtin_str[i]);
   }
-  printf("use the man command for information on other programs.\n");
+  printf("Use the man command for information on other programs.\n");
   return 1;
 }
 //
@@ -91,6 +91,24 @@ int LshLaunch(char **args) {
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
   }
   return 1;
+}
+//
+// Description: Execute shell built-in or launch program.
+// Parameter: args Null terminated list of arguments.
+// Return: 1 if the shell should continue running, 0 if it should terminate
+//
+int LshExecute(char **args) {
+  int i;
+  if (args[0] == NULL) {
+    //An empty command was entered.
+    return 1;
+  }
+  for (i = 0; i < LshNumBuiltins(); i++) {
+    if (strcmp(args[0], builtin_str[i]) == 0) {
+      return (*builtin_func[i])(args);
+    }
+  }
+  return LshLaunch(args);
 }
 #define LSH_RL_BUFSIZE 1024
 //
@@ -176,7 +194,7 @@ void LshLoop(void) {
     printf("> ");
     line = LshReadLine();
     args = LshSplitLine(line);
-//    status = LshExecute(args);
+    status = LshExecute(args);
     free(line);
     free(args);
   } while(status);
