@@ -47,6 +47,42 @@ char *LshReadLine(void) {
     }
   }
 }
+#define LSH_TOK_BUFSIZE 64
+#define LSH_TOK_DELIM " \t\r\n\a"
+//
+// Description: Split a line into tokens.
+// Parameter: line The line.
+// Return: Null-terminated array of tokens.
+//
+char **LshSplitLine(char *line) {
+  int bufsize = LSH_TOK_BUFSIZE;
+  int position = 0;
+  char **tokens = malloc(bufsize * sizeof(char*));
+  char *single_token;
+  char **tokens_backup; 
+  if (!tokens) {
+    fprintf(stderr, "lsh: allocation error\n");
+    exit(EXIT_FAILURE);
+  }
+  single_token = strtok(line, LSH_TOK_DELIM);
+  while (single_token != NULL) {
+    tokens[position] = single_token;
+    position++;
+    if (position >= bufsize) {
+      bufsize += LSH_TOK_BUFSIZE;
+      tokens_backup = tokens;
+      tokens = realloc(tokens, bufsize * sizeof(char*));
+      if (!tokens) {
+        free(tokens_backup);
+        fprintf(stderr, "lsh: allocation error\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+    single_token = strtok(NULL, LSH_TOK_DELIM);
+  }
+  tokens[position] = NULL;
+  return tokens;
+}
 //
 // Description: Loop getting input and executing it.
 //
@@ -57,7 +93,7 @@ void LshLoop(void) {
   do {
     printf("> ");
     line = LshReadLine();
-//    args = LshSplitLine(line);
+    args = LshSplitLine(line);
 //    status = LshExecute(args);
     free(line);
     free(args);
