@@ -204,6 +204,7 @@ void LshLoop(void) {
 // Parameter: agrc Argument count
 // Parameter: argv Argument vector
 // Return: status code
+//
 int main(int argc, char **argv) {
   //Load config files, if any.
   //Run command loop.
